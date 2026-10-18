@@ -45,6 +45,7 @@ form.post button{font:13px Arial;padding:2px 10px}
 .bcard{border:1px solid var(--border);background:var(--reply);width:230px;padding:8px}
 .bcard b{display:block;color:var(--title);font-size:15px}
 .adm{color:var(--hover);font-weight:700}.del{color:var(--hover);cursor:pointer;font-size:11px}.lg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:20}.lg .box{background:var(--bg);border:1px solid var(--border);padding:14px;display:flex;flex-direction:column;gap:6px;width:min(90%,300px)}.lg input{font:13px Arial,sans-serif;padding:4px;background:var(--bg);color:var(--text);border:1px solid var(--border)}.lg .row{display:flex;gap:6px}
+.yt{display:inline-block;margin:4px 0;padding:18px 28px;background:#000;color:#fff;cursor:pointer;border:1px solid var(--border);font-weight:700}.ytf{display:block;width:min(100%,480px);aspect-ratio:16/9;border:0;margin:4px 0}
 .foot{text-align:center;font-size:11px;color:#707070;margin-top:30px}
 @media (max-width:600px){.msg{margin:8px 12px}.post img.th{margin:3px 10px 5px}}
 </style>
@@ -60,11 +61,12 @@ var D,ADM=false,NOTE="No forgive, I forget",SB,ME,TS=[],RS=[];
 function isAdm(){return ADM}
 function load(){if(!D)rebuild([],[])}
 function rebuild(T,R){D={};Object.keys(BOARDS).forEach(function(k){D[k]=[]});var by={};T.forEach(function(t){t.text=t.body;t.time=Date.parse(t.created_at);t.r=[];t.bump=t.time;by[t.id]=t;if(D[t.board])D[t.board].push(t)});R.forEach(function(r){r.text=r.body;r.time=Date.parse(r.created_at)});R.slice().sort(function(a,b){return a.time-b.time}).forEach(function(r){var t=by[r.thread_id];if(t){t.r.push(r);t.bump=Math.max(t.bump,r.time)}})}
-function refresh(){var t=document.getElementById("fc");if(t&&(t.value||document.activeElement==t))return;var y=scrollY;route();scrollTo(0,y)}
-async function pull(){if(!ME)return;var a=await SB.from("threads").select("*"),b=await SB.from("replies").select("*");if(a.error||b.error)return;TS=a.data;RS=b.data;rebuild(TS,RS);refresh()}
+function refresh(){if(document.querySelector(".ytf"))return;
+async function pull(){if(!ME)return;var a=await SB.from("threads").select("*"),b=await SB.from("replies").select("*")if(a.error||b.error)return;var sg=a.data.map(function(x){return x.id}).join()+"|"+b.data.map(function(x){return x.id}).join();if(sg==window._sg)return;window._sg=sg;TS=a.data;RS=b.data;rebuild(TS,RS);refresh()}
 function err(m){var e=document.querySelector(".err");if(e)e.textContent=m}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-function fmt(s){return esc(s).split("\n").map(function(l){l=l.replace(/&gt;&gt;(\d+)/g,function(m,n){return'<a class="ql" href="#/'+cur.b+"/"+findT(+n)+"/"+n+'">&gt;&gt;'+n+"</a>"});return /^&gt;(?!&gt;\d)/.test(l)?'<span class="gt">'+l+"</span>":l}).join("\n")}
+function fmt(s){return esc(s).split("\n")var YT=/https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^\s]*?&amp;)?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})[^\s]*/g;
+function fmt(s){return esc(s).replace(YT,'<div class="yt" data-yt="$1">▶ Play YouTube video</div>').split("\n")
 function findT(n){var L=D[cur.b]||[];for(var i=0;i<L.length;i++){if(L[i].id==n)return L[i].id;for(var j=0;j<L[i].r.length;j++)if(L[i].r[j].id==n)return L[i].id}return 0}
 function dt(t){var d=new Date(t),p=function(n){return(n<10?"0":"")+n};return p(d.getMonth()+1)+"/"+p(d.getDate())+"/"+d.getFullYear()+" "+p(d.getHours())+":"+p(d.getMinutes())}
 var cur={b:"",t:0,hl:0};
@@ -91,6 +93,7 @@ if(cur.hl){var e=document.getElementById("p"+cur.hl);if(e){e.style.outline="2px 
 else{app.innerHTML=head+formHTML()+"<hr>"+(L.length?L.map(function(T){var show=T.r.slice(-3),om=T.r.length-show.length;return'<div class="thread">'+postHTML(T,1,T,1)+(om?'<div class="omit">'+om+" repl"+(om>1?"ies":"y")+" omitted.</div>":"")+show.map(function(r){return postHTML(r,0,T)}).join("")+"</div><hr>"}).join(""):'<p class="crumb" style="text-align:center">No threads yet. Start the first one.</p>');wire()}
 }
 document.addEventListener("click",function(e){var q=e.target.getAttribute&&e.target.getAttribute("data-q");if(q){var t=document.getElementById("fc");if(t){e.preventDefault();document.getElementById("f").classList.add("open");t.value+=">>"+q+"\n";t.focus()}}});
+document.addEventListener("click",function(e){var y=e.target.closest&&e.target.closest("[data-yt]");if(y){var f=document.createElement("iframe");f.src="https://www.youtube-nocookie.com/embed/"+y.getAttribute("data-yt")+"?autoplay=1";f.setAttribute("allow","autoplay; encrypted-media; picture-in-picture; fullscreen");f.allowFullscreen=true;f.className="ytf";y.replaceWith(f)}});
 function login(){document.getElementById("nav").innerHTML="";document.getElementById("app").innerHTML='<div class="logo"><h1>Fukistain</h1><p>I\'m not even supposed to be here today</p></div><hr><p class="crumb" style="text-align:center">Could not connect. Please try again later.</p>'}
 var _r=route;route=function(){if(!ME)return login();_r()};
 document.addEventListener("click",function(e){var d=e.target.getAttribute&&e.target.getAttribute("data-del");if(!d||!isAdm())return;if(!e.target.dataset.arm){e.target.dataset.arm=1;e.target.textContent="[Confirm?]";return}var id=+d,t=D[cur.b].find(function(t){return t.id==id});(t?SB.from("threads").delete().eq("id",id):SB.from("replies").delete().eq("id",id)).then(function(){if(t&&cur.t==id)location.hash="#/"+cur.b;pull()})});
