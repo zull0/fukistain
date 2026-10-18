@@ -61,12 +61,12 @@ var D,ADM=false,NOTE="No forgive, I forget",SB,ME,TS=[],RS=[];
 function isAdm(){return ADM}
 function load(){if(!D)rebuild([],[])}
 function rebuild(T,R){D={};Object.keys(BOARDS).forEach(function(k){D[k]=[]});var by={};T.forEach(function(t){t.text=t.body;t.time=Date.parse(t.created_at);t.r=[];t.bump=t.time;by[t.id]=t;if(D[t.board])D[t.board].push(t)});R.forEach(function(r){r.text=r.body;r.time=Date.parse(r.created_at)});R.slice().sort(function(a,b){return a.time-b.time}).forEach(function(r){var t=by[r.thread_id];if(t){t.r.push(r);t.bump=Math.max(t.bump,r.time)}})}
-function refresh(){if(document.querySelector(".ytf"))return;
-async function pull(){if(!ME)return;var a=await SB.from("threads").select("*"),b=await SB.from("replies").select("*")if(a.error||b.error)return;var sg=a.data.map(function(x){return x.id}).join()+"|"+b.data.map(function(x){return x.id}).join();if(sg==window._sg)return;window._sg=sg;TS=a.data;RS=b.data;rebuild(TS,RS);refresh()}
+function refresh(){if(document.querySelector(".ytf"))return;var t=document.getElementById("fc");if(t&&(t.value||document.activeElement==t))return;var y=scrollY;route();scrollTo(0,y)}
+async function pull(){if(!ME)return;var a=await SB.from("threads").select("*"),b=await SB.from("replies").select("*");if(a.error||b.error)return;var sg=a.data.map(function(x){return x.id}).join()+"|"+b.data.map(function(x){return x.id}).join();if(sg==window._sg)return;window._sg=sg;TS=a.data;RS=b.data;rebuild(TS,RS);refresh()}
 function err(m){var e=document.querySelector(".err");if(e)e.textContent=m}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-function fmt(s){return esc(s).split("\n")var YT=/https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^\s]*?&amp;)?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})[^\s]*/g;
-function fmt(s){return esc(s).replace(YT,'<div class="yt" data-yt="$1">▶ Play YouTube video</div>').split("\n")
+var YT=/https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^\s]*?&amp;)?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})[^\s]*/g;
+function fmt(s){return esc(s).replace(YT,'<div class="yt" data-yt="$1">▶ Play YouTube video</div>').split("\n").map(function(l){l=l.replace(/&gt;&gt;(\d+)/g,function(m,n){return'<a class="ql" href="#/'+cur.b+"/"+findT(+n)+"/"+n+'">&gt;&gt;'+n+"</a>"});return /^&gt;(?!&gt;\d)/.test(l)?'<span class="gt">'+l+"</span>":l}).join("\n")}
 function findT(n){var L=D[cur.b]||[];for(var i=0;i<L.length;i++){if(L[i].id==n)return L[i].id;for(var j=0;j<L[i].r.length;j++)if(L[i].r[j].id==n)return L[i].id}return 0}
 function dt(t){var d=new Date(t),p=function(n){return(n<10?"0":"")+n};return p(d.getMonth()+1)+"/"+p(d.getDate())+"/"+d.getFullYear()+" "+p(d.getHours())+":"+p(d.getMinutes())}
 var cur={b:"",t:0,hl:0};
