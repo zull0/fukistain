@@ -96,7 +96,7 @@ else{app.innerHTML=head+formHTML()+"<hr>"+(L.length?L.map(function(T){var show=T
 }
 document.addEventListener("click",function(e){var q=e.target.getAttribute&&e.target.getAttribute("data-q");if(q){var t=document.getElementById("fc");if(t){e.preventDefault();document.getElementById("f").classList.add("open");t.value+=">>"+q+"\n";t.focus()}}});
 document.addEventListener("click",function(e){var y=e.target.closest&&e.target.closest("[data-yt]");if(y){var f=document.createElement("iframe");f.src="https://www.youtube-nocookie.com/embed/"+y.getAttribute("data-yt")+"?autoplay=1";f.setAttribute("allow","autoplay; encrypted-media; picture-in-picture; fullscreen");f.allowFullscreen=true;f.className="ytf";y.replaceWith(f)}});
-var BGM={m:"music-eh.mp3"},au=new Audio(),on=false;au.loop=true;au.volume=.4;
+var BGM={eh:"music-eh.mp3"},au=new Audio(),on=false;au.loop=true;au.volume=.4;
 function bgm(){var s=BGM[cur.b],b=document.getElementById("mu");if(b)b.style.display=s?"inline":"none";if(!s){au.pause();return}if(!au.src.endsWith(s))au.src=s;if(b)b.textContent=on?"[♪ Music: on]":"[♪ Music: off]";if(on)au.play().catch(function(){})}
 document.addEventListener("click",function(e){if(e.target.id=="mu"){e.preventDefault();on=!on;bgm()}});
 function login(){document.getElementById("nav").innerHTML="";document.getElementById("app").innerHTML='<div class="logo"><h1>Fukistain</h1><p>I\'m not even supposed to be here today</p></div><hr><p class="crumb" style="text-align:center">Could not connect. Please try again later.</p>'}
