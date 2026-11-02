@@ -47,6 +47,7 @@ form.post button{font:13px Arial;padding:2px 10px}
 .adm{color:var(--hover);font-weight:700}.del{color:var(--hover);cursor:pointer;font-size:11px}.lg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:20}.lg .box{background:var(--bg);border:1px solid var(--border);padding:14px;display:flex;flex-direction:column;gap:6px;width:min(90%,300px)}.lg input{font:13px Arial,sans-serif;padding:4px;background:var(--bg);color:var(--text);border:1px solid var(--border)}.lg .row{display:flex;gap:6px}
 .yt{display:inline-block;margin:4px 0;padding:18px 28px;background:#000;color:#fff;cursor:pointer;border:1px solid var(--border);font-weight:700}.ytf{display:block;width:min(100%,480px);aspect-ratio:16/9;border:0;margin:4px 0}
 .rec{max-width:640px;margin:8px auto}.rec .rh{display:block;background:var(--bar);padding:3px 6px;border:1px solid var(--border)}.rt{display:flex;gap:8px;align-items:center;padding:5px;border:1px solid var(--border);border-top:0;background:var(--reply)}.rt img{width:50px;height:50px;object-fit:cover;flex:none}.rt small{color:#707070}
+.bw .post{filter:grayscale(1)}
 .foot{text-align:center;font-size:11px;color:#707070;margin-top:30px}
 @media (max-width:600px){.msg{margin:8px 12px}.post img.th{margin:3px 10px 5px}}
 </style>
@@ -85,7 +86,7 @@ var q=thread?SB.from("replies").insert(Object.assign(r,{thread_id:thread.id})):S
 q.select().single().then(function(x){if(x.error)return err("Could not post: "+x.error.message);f.reset();pull().then(function(){location.hash="#/"+cur.b+"/"+(thread?thread.id+"/":"")+x.data.id})})}
 if(!file)return go();if(file.size>4e6)return err("Image must be under 4 MB.");
 var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,400/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);go(c.toDataURL("image/jpeg",.7))};im.onerror=function(){err("Could not read that image.")};im.src=rd.result};rd.readAsDataURL(file)}}
-function route(){var h=location.hash.replace(/^#\/?/,"").split("/"),app=document.getElementById("app");load();nav();cur={b:h[0],t:+h[1]||0,hl:+h[2]||0};document.title="Fukistain";bgm();
+function route(){var h=location.hash.replace(/^#\/?/,"").split("/"),app=document.getElementById("app");load();nav();cur={b:h[0],t:+h[1]||0,hl:+h[2]||0};document.title="Fukistain";bgm();document.body.classList.toggle("bw",cur.b=="eh");
 if(!BOARDS[cur.b]){app.innerHTML='<div class="logo"><h1>Fukistain</h1><p>I\'m not even supposed to be here today</p></div><hr>'+recent()+'<div class="boards">'+Object.keys(BOARDS).map(function(k){return'<a class="bcard" href="#/'+k+'"><b>/'+k+"/ - "+BOARDS[k][0]+"</b>"+BOARDS[k][1]+" ("+D[k].length+" threads)</a>"}).join("")+'</div><div class="foot">'+NOTE+'</div>';return}
 var B=BOARDS[cur.b],L=D[cur.b].slice().sort(function(a,b){return b.bump-a.bump}),head='<div class="logo"><h1>/'+cur.b+"/ - "+B[0]+"</h1><p>"+B[1]+"</p></div><hr>";
 if(cur.t){var T=D[cur.b].filter(function(x){return x.id==cur.t})[0];if(!T){app.innerHTML=head+'<p class="crumb">Thread not found. <a href="#/'+cur.b+'">Return</a></p>';return}
